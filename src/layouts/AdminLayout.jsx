@@ -1,21 +1,93 @@
+import { Menu, ShieldCheck, LogOut, FileJson } from "lucide-react";
+import { Link, Outlet } from "react-router-dom";
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
-import Topbar from "../components/layout/Topbar";
+import { useAuth } from "../context/AuthContext";
+import { APP_CONFIG } from "../config/app";
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-100">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="lg:pl-72">
-        <Topbar onOpenSidebar={() => setSidebarOpen(true)} />
+      <div className="min-h-screen lg:pl-72">
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+          <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm lg:hidden"
+                aria-label="Abrir menu"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
 
-        <main className="px-4 py-6 sm:px-6 lg:px-8">
+              <div className="min-w-0">
+                <p className="hidden text-xs font-black uppercase tracking-[0.35em] text-blue-700 sm:block">
+                  Universidade Metropolitana de Angola / IMETRO
+                </p>
+
+                <p className="block text-xs font-black uppercase tracking-[0.25em] text-blue-700 sm:hidden">
+                  IMETRO
+                </p>
+
+                <h1 className="mt-1 truncate text-base font-black leading-6 text-slate-950 sm:text-xl">
+                  <span className="hidden sm:inline">
+                    Plataforma de Otimização Acadêmica
+                  </span>
+                  <span className="sm:hidden">Painel Acadêmico</span>
+                </h1>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                to="/admin/openapi"
+                className="hidden items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 md:inline-flex"
+              >
+                <FileJson className="h-4 w-4" />
+                OpenAPI JSON
+              </Link>
+
+              <div className="hidden items-center gap-3 rounded-2xl bg-slate-100 px-4 py-2 sm:flex">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+
+                <div className="leading-4">
+                  <p className="text-sm font-black text-slate-800">
+                    {user?.fullName || user?.name || "Administrador"}
+                  </p>
+                  <p className="text-xs font-semibold uppercase text-slate-500">
+                    {user?.role || "ADMIN"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={logout}
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm transition hover:bg-slate-800"
+                aria-label="Sair"
+                title="Sair"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="min-w-0 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
           <Outlet />
         </main>
+
+        <footer className="px-4 pb-6 text-xs text-slate-500 sm:px-6 lg:px-8">
+          Executado por {APP_CONFIG.executor}
+        </footer>
       </div>
     </div>
   );
