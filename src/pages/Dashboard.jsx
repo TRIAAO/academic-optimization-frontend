@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  Activity,
+  AlertTriangle,
   BookOpenCheck,
+  CheckCircle2,
   ClipboardCheck,
-  Database,
   FileText,
   GraduationCap,
-  History,
   LibraryBig,
   Link2,
   Network,
@@ -21,56 +21,28 @@ import PrimaryButton from "../components/ui/PrimaryButton";
 import StatCard from "../components/ui/StatCard";
 import { APP_CONFIG } from "../config/app";
 import { dashboardService } from "../services/dashboardService";
-import { formatDateTime, formatNumber, formatStatus } from "../utils/formatters";
+import { formatDateTime, formatNumber } from "../utils/formatters";
 
 export default function Dashboard() {
   const [dashboard, setDashboard] = useState(null);
-  const [status, setStatus] = useState(null);
-  const [openApi, setOpenApi] = useState(null);
-  const [errors, setErrors] = useState([]);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   async function loadDashboard() {
     setLoading(true);
-    setErrors([]);
+    setError("");
 
-    const results = await Promise.allSettled([
-      dashboardService.getInstitutionalDashboard(),
-      dashboardService.getOperationalStatus(),
-      dashboardService.getOpenApiSummary()
-    ]);
-
-    const nextErrors = [];
-
-    if (results[0].status === "fulfilled") {
-      setDashboard(results[0].value);
-    } else {
-      nextErrors.push({
-        title: "Dashboard institucional",
-        message: results[0].reason?.message
-      });
+    try {
+      const data = await dashboardService.getInstitutionalDashboard();
+      setDashboard(data);
+    } catch (apiError) {
+      setError(
+        apiError?.message ||
+          "Não foi possível carregar o dashboard institucional."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    if (results[1].status === "fulfilled") {
-      setStatus(results[1].value);
-    } else {
-      nextErrors.push({
-        title: "Status operacional",
-        message: results[1].reason?.message
-      });
-    }
-
-    if (results[2].status === "fulfilled") {
-      setOpenApi(results[2].value);
-    } else {
-      nextErrors.push({
-        title: "OpenAPI JSON",
-        message: results[2].reason?.message
-      });
-    }
-
-    setErrors(nextErrors);
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -79,7 +51,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <LoadingState message="Consolidando dados institucionais da API em produção..." />
+      <LoadingState message="Carregando visão institucional da plataforma..." />
     );
   }
 
@@ -87,25 +59,25 @@ export default function Dashboard() {
     {
       title: "Pesquisadores",
       value: formatNumber(dashboard?.totalResearchers),
-      description: "Registros de pesquisadores cadastrados.",
+      description: "Professores e pesquisadores cadastrados.",
       icon: UserRoundSearch
     },
     {
       title: "Perfis Acadêmicos",
       value: formatNumber(dashboard?.totalAcademicProfiles),
-      description: "Perfis acadêmicos vinculados aos pesquisadores.",
+      description: "Perfis acadêmicos organizados na plataforma.",
       icon: GraduationCap
     },
     {
       title: "Pesquisadores com ORCID",
       value: formatNumber(dashboard?.researchersWithOrcid),
-      description: "Pesquisadores com ORCID informado no cadastro.",
+      description: "Pesquisadores com identificador ORCID informado.",
       icon: Link2
     },
     {
       title: "Obras ORCID",
       value: formatNumber(dashboard?.totalOrcidWorks),
-      description: "Obras importadas ou vinculadas via ORCID.",
+      description: "Obras acadêmicas importadas ou vinculadas via ORCID.",
       icon: BookOpenCheck
     },
     {
@@ -117,83 +89,57 @@ export default function Dashboard() {
     {
       title: "Obras Revisadas",
       value: formatNumber(dashboard?.reviewedWorks),
-      description: "Obras confirmadas ou rejeitadas na revisão manual.",
+      description: "Obras confirmadas ou rejeitadas pela revisão manual.",
       icon: ClipboardCheck
     },
     {
       title: "DOIs Validados",
       value: formatNumber(dashboard?.validatedDois),
-      description: "Validações DOI e metadados via Crossref.",
+      description: "Validações bibliográficas realizadas via Crossref.",
       icon: LibraryBig
     },
     {
-      title: "Eventos de Auditoria",
-      value: formatNumber(dashboard?.auditEvents),
-      description: "Eventos de rastreabilidade encontrados.",
-      icon: History
+      title: "Relatórios",
+      value: formatNumber(dashboard?.optimizationReports || 0),
+      description: "Relatórios de otimização acadêmica gerados.",
+      icon: FileText
     }
   ];
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] bg-slate-950 p-6 text-white shadow-xl shadow-slate-950/10 sm:p-8">
-        <div className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100">
-              <ShieldCheck className="h-4 w-4" />
-              Produção
-            </div>
+      <PageHeader
+        eyebrow="Visão institucional"
+        title="Dashboard Institucional IMETRO"
+        description="Acompanhe a evolução dos pesquisadores, perfis acadêmicos, integrações científicas, revisão de obras, validações DOI e relatórios de otimização acadêmica."
+        actions={
+          <PrimaryButton variant="light" icon={RefreshCw} onClick={loadDashboard}>
+            Atualizar dashboard
+          </PrimaryButton>
+        }
+      >
+        <div className="rounded-3xl border border-blue-100 bg-blue-50 p-5">
+          <div className="flex gap-4">
+            <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-blue-700" />
 
-            <h2 className="mt-6 max-w-4xl text-3xl font-black tracking-tight sm:text-4xl">
-              Dashboard Institucional IMETRO
-            </h2>
+            <div>
+              <h3 className="font-black text-blue-950">
+                Plataforma acadêmica institucional
+              </h3>
 
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-              Visão executiva consolidada da plataforma acadêmica: pesquisadores,
-              perfis, ORCID, OpenAlex, Crossref, relatórios, auditoria, checklist
-              Google Acadêmico e status operacional.
-            </p>
-
-            <div className="mt-6">
-              <PrimaryButton variant="light" icon={RefreshCw} onClick={loadDashboard}>
-                Atualizar dashboard
-              </PrimaryButton>
+              <p className="mt-2 text-sm leading-7 text-blue-900">
+                Este painel apresenta apenas informações institucionais úteis
+                para acompanhamento acadêmico. Informações técnicas da
+                infraestrutura, API, banco de dados, segurança e endpoints ficam
+                restritas à área técnica da TRIA Company.
+              </p>
             </div>
           </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/20 text-emerald-300">
-                <Activity className="h-6 w-6" />
-              </div>
-
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                  API
-                </p>
-                <p className="text-lg font-bold">
-                  {formatStatus(status?.status || "ONLINE")}
-                </p>
-              </div>
-            </div>
-
-            <p className="mt-4 text-xs leading-6 text-slate-400">
-              Base URL: {APP_CONFIG.apiBaseUrl}
-            </p>
-          </div>
         </div>
-      </section>
+      </PageHeader>
 
-      {errors.length > 0 && (
-        <div className="space-y-3">
-          {errors.map((error) => (
-            <ErrorState
-              key={error.title}
-              title={error.title}
-              message={error.message}
-            />
-          ))}
-        </div>
+      {error && (
+        <ErrorState title="Erro no dashboard institucional" message={error} />
       )}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -209,129 +155,49 @@ export default function Dashboard() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-3">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:col-span-2">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-              <Database className="h-6 w-6" />
-            </div>
-
-            <div>
-              <h3 className="font-bold text-slate-950">Status operacional</h3>
-              <p className="text-sm text-slate-500">
-                Saúde geral dos serviços integrados.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Aplicação
-              </p>
-              <p className="mt-2 font-bold text-slate-950">
-                {status?.api || "Academic Optimization Platform API"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Banco de dados
-              </p>
-              <p className="mt-2 font-bold text-slate-950">
-                {status?.database || "PostgreSQL"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Segurança
-              </p>
-              <p className="mt-2 font-bold text-slate-950">
-                {status?.security || "JWT ativo"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Última atualização
-              </p>
-              <p className="mt-2 font-bold text-slate-950">
-                {formatDateTime(status?.generatedAt || dashboard?.lastSync)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="font-bold text-slate-950">OpenAPI JSON</h3>
-
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Swagger UI foi desativado de propósito. O frontend usa o contrato
-            JSON publicado em produção.
-          </p>
-
-          <div className="mt-6 space-y-3">
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Título
-              </p>
-              <p className="mt-2 font-bold text-slate-950">
-                {openApi?.title || "OpenAPI JSON"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Endpoints mapeados
-              </p>
-              <p className="mt-2 font-bold text-slate-950">
-                {formatNumber(openApi?.totalPaths)}
-              </p>
-            </div>
-
-            <a
-              href={APP_CONFIG.openApiUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex w-full justify-center rounded-2xl bg-blue-700 px-4 py-3 text-sm font-bold text-white hover:bg-blue-800"
-            >
-              Abrir OpenAPI JSON
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-3">
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="font-black text-slate-950">Revisão Manual</h3>
 
+          <p className="mt-2 text-sm leading-7 text-slate-500">
+            A revisão manual ajuda a evitar associação incorreta de obras
+            acadêmicas aos pesquisadores.
+          </p>
+
           <div className="mt-5 space-y-3">
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-              <span className="text-sm font-semibold text-slate-600">
+            <div className="flex items-center justify-between rounded-2xl bg-amber-50 p-4">
+              <span className="text-sm font-semibold text-amber-900">
                 Pendentes
               </span>
-              <span className="text-xl font-black text-amber-600">
+              <span className="text-xl font-black text-amber-700">
                 {formatNumber(dashboard?.pendingReviewWorks)}
               </span>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-              <span className="text-sm font-semibold text-slate-600">
+            <div className="flex items-center justify-between rounded-2xl bg-emerald-50 p-4">
+              <span className="text-sm font-semibold text-emerald-900">
                 Confirmadas
               </span>
-              <span className="text-xl font-black text-emerald-600">
+              <span className="text-xl font-black text-emerald-700">
                 {formatNumber(dashboard?.confirmedWorks)}
               </span>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-              <span className="text-sm font-semibold text-slate-600">
+            <div className="flex items-center justify-between rounded-2xl bg-red-50 p-4">
+              <span className="text-sm font-semibold text-red-900">
                 Rejeitadas
               </span>
-              <span className="text-xl font-black text-red-600">
+              <span className="text-xl font-black text-red-700">
                 {formatNumber(dashboard?.rejectedWorks)}
               </span>
             </div>
+          </div>
+
+          <div className="mt-5">
+            <Link to="/admin/manual-review">
+              <PrimaryButton variant="light" icon={ClipboardCheck}>
+                Ir para revisão
+              </PrimaryButton>
+            </Link>
           </div>
         </div>
 
@@ -345,13 +211,88 @@ export default function Dashboard() {
           </p>
 
           <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-            <p className="text-sm leading-7 text-amber-900">
-              O painel apenas orienta o pesquisador a revisar manualmente seu
-              perfil no Google Acadêmico. As integrações automáticas permitidas
-              continuam sendo ORCID, OpenAlex e Crossref.
-            </p>
+            <div className="flex gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+
+              <p className="text-sm leading-7 text-amber-900">
+                O painel apenas orienta o pesquisador a revisar manualmente seu
+                perfil no Google Acadêmico. As integrações automáticas permitidas
+                continuam sendo ORCID, OpenAlex e Crossref.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <Link to="/admin/google-scholar-checklist">
+              <PrimaryButton variant="light" icon={CheckCircle2}>
+                Abrir checklist
+              </PrimaryButton>
+            </Link>
           </div>
         </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-3">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="font-black text-slate-950">ORCID</h3>
+
+          <p className="mt-2 text-sm leading-7 text-slate-500">
+            Organize identificadores ORCID e obras associadas aos pesquisadores.
+          </p>
+
+          <div className="mt-5">
+            <Link to="/admin/orcid">
+              <PrimaryButton variant="light" icon={Link2}>
+                Acessar ORCID
+              </PrimaryButton>
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="font-black text-slate-950">OpenAlex</h3>
+
+          <p className="mt-2 text-sm leading-7 text-slate-500">
+            Consulte autores, candidatos e obras científicas para análise
+            acadêmica.
+          </p>
+
+          <div className="mt-5">
+            <Link to="/admin/openalex">
+              <PrimaryButton variant="light" icon={Network}>
+                Acessar OpenAlex
+              </PrimaryButton>
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="font-black text-slate-950">Crossref / DOI</h3>
+
+          <p className="mt-2 text-sm leading-7 text-slate-500">
+            Valide DOI e metadados bibliográficos das obras acadêmicas.
+          </p>
+
+          <div className="mt-5">
+            <Link to="/admin/crossref">
+              <PrimaryButton variant="light" icon={LibraryBig}>
+                Validar DOI
+              </PrimaryButton>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 className="font-black text-slate-950">Última atualização</h3>
+
+        <p className="mt-2 text-sm leading-7 text-slate-500">
+          Dados consolidados a partir dos módulos acadêmicos da plataforma.
+        </p>
+
+        <p className="mt-4 text-sm font-bold text-slate-900">
+          {formatDateTime(dashboard?.lastSync)}
+        </p>
       </section>
     </div>
   );

@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import TechnicalRoute from "./routes/TechnicalRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AcademicProfiles from "./pages/AcademicProfiles";
 import Audit from "./pages/Audit";
@@ -34,20 +35,20 @@ export default function App() {
 
           <Route path="academic-profiles" element={<AcademicProfiles />} />
           <Route path="orcid" element={<Orcid />} />
-
           <Route path="openalex" element={<OpenAlex />} />
           <Route path="manual-review" element={<ManualReview />} />
           <Route path="crossref" element={<Crossref />} />
-
           <Route path="reports" element={<Reports />} />
           <Route
             path="google-scholar-checklist"
             element={<GoogleScholarChecklist />}
           />
-          <Route path="audit" element={<Audit />} />
 
-          <Route path="status" element={<OperationalStatus />} />
-          <Route path="openapi" element={<OpenApiExplorer />} />
+          <Route element={<TechnicalRoute />}>
+            <Route path="audit" element={<Audit />} />
+            <Route path="status" element={<OperationalStatus />} />
+            <Route path="openapi" element={<OpenApiExplorer />} />
+          </Route>
         </Route>
       </Route>
 
