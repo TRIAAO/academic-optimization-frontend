@@ -20,6 +20,7 @@ export const ADMIN_MODULES = [
     href: "/admin/dashboard",
     icon: LayoutDashboard,
     enabled: true,
+    technical: false,
     description: "Visão executiva da plataforma acadêmica."
   },
   {
@@ -28,6 +29,7 @@ export const ADMIN_MODULES = [
     href: "/admin/researchers",
     icon: UserRoundSearch,
     enabled: true,
+    technical: false,
     description: "Cadastro, edição, busca e gestão de pesquisadores."
   },
   {
@@ -36,6 +38,7 @@ export const ADMIN_MODULES = [
     href: "/admin/academic-profiles",
     icon: GraduationCap,
     enabled: true,
+    technical: false,
     description: "Gestão dos perfis acadêmicos vinculados aos pesquisadores."
   },
   {
@@ -44,6 +47,7 @@ export const ADMIN_MODULES = [
     href: "/admin/orcid",
     icon: Link2,
     enabled: true,
+    technical: false,
     description: "Importação, resumo público e sincronização ORCID."
   },
   {
@@ -52,6 +56,7 @@ export const ADMIN_MODULES = [
     href: "/admin/openalex",
     icon: Network,
     enabled: true,
+    technical: false,
     description: "Validação por ORCID, candidatos e obras encontradas."
   },
   {
@@ -60,6 +65,7 @@ export const ADMIN_MODULES = [
     href: "/admin/manual-review",
     icon: BookOpenCheck,
     enabled: true,
+    technical: false,
     description: "Confirmação manual de obras acadêmicas."
   },
   {
@@ -68,6 +74,7 @@ export const ADMIN_MODULES = [
     href: "/admin/crossref",
     icon: LibraryBig,
     enabled: true,
+    technical: false,
     description: "Validação DOI e metadados via Crossref."
   },
   {
@@ -76,6 +83,7 @@ export const ADMIN_MODULES = [
     href: "/admin/reports",
     icon: FileText,
     enabled: true,
+    technical: false,
     description: "Relatórios de otimização acadêmica e exportação PDF."
   },
   {
@@ -84,14 +92,21 @@ export const ADMIN_MODULES = [
     href: "/admin/google-scholar-checklist",
     icon: ClipboardCheck,
     enabled: true,
+    technical: false,
     description: "Checklist manual e orientação segura."
   },
+
+  /*
+   * Área técnica TRIA Company.
+   * Não deve aparecer para cliente institucional.
+   */
   {
     key: "audit",
     name: "Auditoria",
     href: "/admin/audit",
     icon: History,
     enabled: true,
+    technical: true,
     description: "Eventos, rastreabilidade e histórico de ações."
   },
   {
@@ -100,6 +115,7 @@ export const ADMIN_MODULES = [
     href: "/admin/status",
     icon: Activity,
     enabled: true,
+    technical: true,
     description: "Saúde da API, banco, segurança e integrações."
   },
   {
@@ -108,6 +124,7 @@ export const ADMIN_MODULES = [
     href: "/admin/openapi",
     icon: ShieldCheck,
     enabled: true,
+    technical: true,
     description: "Resumo do contrato OpenAPI em produção."
   }
 ];

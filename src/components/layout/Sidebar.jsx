@@ -2,8 +2,16 @@ import { BarChart3, ShieldCheck, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { APP_CONFIG } from "../../config/app";
 import { ADMIN_MODULES } from "../../config/modules";
+import { canViewModule } from "../../config/permissions";
+import { useAuth } from "../../context/AuthContext";
 
 function SidebarContent({ onClose }) {
+  const { user } = useAuth();
+
+  const visibleModules = ADMIN_MODULES.filter((item) =>
+    canViewModule(user, item)
+  );
+
   return (
     <div className="flex h-full flex-col bg-slate-950 text-white">
       <div className="flex h-20 items-center justify-between border-b border-white/10 px-6">
@@ -30,7 +38,7 @@ function SidebarContent({ onClose }) {
 
       <div className="flex-1 overflow-y-auto px-4 py-5">
         <nav className="space-y-1">
-          {ADMIN_MODULES.map((item) => {
+          {visibleModules.map((item) => {
             const Icon = item.icon;
 
             return (
