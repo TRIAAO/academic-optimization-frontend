@@ -17,8 +17,8 @@ export default function AdminLayout() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="min-h-screen lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-          <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <header className="fixed left-0 right-0 top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur lg:left-72">
+          <div className="flex min-h-20 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
@@ -30,11 +30,11 @@ export default function AdminLayout() {
               </button>
 
               <div className="min-w-0">
-                <p className="hidden text-xs font-black uppercase tracking-[0.35em] text-blue-700 sm:block">
-                  Universidade Metropolitana de Angola / IMETRO
+                <p className="hidden text-xs font-black uppercase tracking-[0.28em] text-blue-700 md:block">
+                  Instituto Superior Politécnico Metropolitano de Angola / IMETRO
                 </p>
 
-                <p className="block text-xs font-black uppercase tracking-[0.25em] text-blue-700 sm:hidden">
+                <p className="block text-xs font-black uppercase tracking-[0.25em] text-blue-700 md:hidden">
                   IMETRO
                 </p>
 
@@ -54,7 +54,7 @@ export default function AdminLayout() {
                 </div>
 
                 <div className="leading-4">
-                  <p className="text-sm font-black text-slate-800">
+                  <p className="max-w-32 truncate text-sm font-black text-slate-800">
                     {user?.fullName || user?.name || "Administrador"}
                   </p>
                   <p className="text-xs font-semibold uppercase text-slate-500">
@@ -76,7 +76,7 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className="min-w-0 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <main className="min-w-0 px-4 pb-5 pt-24 sm:px-6 sm:pb-6 lg:px-8">
           <Outlet />
         </main>
 
